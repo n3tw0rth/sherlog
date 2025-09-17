@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
+import { useRouter } from "next/navigation"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -17,9 +18,9 @@ interface AuthModalProps {
 export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [isLogin, setIsLogin] = useState(true)
   const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
   const [error, setError] = useState("")
-  const { login, register } = useAuth()
+  const { login } = useAuth()
+  const router = useRouter()
 
   if (!isOpen) return null
 
@@ -27,17 +28,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     e.preventDefault()
     setError("")
 
-    if (!username.trim() || !password.trim()) {
+    if (!username.trim()) {
       setError("Please fill in all fields")
       return
     }
 
-    const success = isLogin ? login(username, password) : register(username, password)
+    const success = login(username)
 
     if (success) {
       onClose()
       setUsername("")
-      setPassword("")
+      router.push("/dashboard")
     } else {
       setError(isLogin ? "Invalid credentials" : "Username already exists")
     }
@@ -49,7 +50,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">{isLogin ? "Sign In" : "Sign Up"}</CardTitle>
           <CardDescription>
-            {isLogin ? "Welcome back! Sign in to track your scores." : "Create an account to save your progress."}
+            {"We're feeling generous today, sign in with just your username. That's right, no passwords!"}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -64,16 +65,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 placeholder="Enter your username"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-              />
-            </div>
             {error && <p className="text-destructive text-sm">{error}</p>}
             <div className="flex gap-2">
               <Button type="submit" className="flex-1">
@@ -84,15 +75,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </Button>
             </div>
           </form>
-          <div className="mt-4 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-sm text-muted-foreground hover:text-foreground underline"
-            >
-              {isLogin ? "Don't have an account? Sign up" : "Already have an account? Sign in"}
-            </button>
-          </div>
         </CardContent>
       </Card>
     </div>

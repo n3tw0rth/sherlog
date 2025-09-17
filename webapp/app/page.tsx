@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Header } from "@/components/header"
 import { AuthModal } from "@/components/auth-modal"
 import { Button } from "@/components/ui/button"
@@ -10,7 +10,12 @@ import Link from "next/link"
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false)
-  const { user, isLoading } = useAuth()
+  const { store, isLoading } = useAuth()
+
+  useEffect(() => {
+    if (store.activeUser) {
+    }
+  })
 
   if (isLoading) {
     return (
@@ -36,47 +41,49 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Reaction Time Test</CardTitle>
-              <CardDescription>
-                Click the button as soon as it turns red. Test your reflexes and reaction speed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Link href="/reaction-time">
-                <Button size="lg" className="w-full">
-                  Start Reaction Test
-                </Button>
-              </Link>
-              {user && user.scores.reactionTime.length > 0 && (
-                <p className="mt-4 text-sm text-muted-foreground">Best: {Math.min(...user.scores.reactionTime)}ms</p>
-              )}
-            </CardContent>
-          </Card>
+        {store.activeUser && (
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto mb-12">
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Reaction Time Test</CardTitle>
+                <CardDescription>
+                  Click the button as soon as it turns red. Test your reflexes and reaction speed.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Link href="/reaction-time">
+                  <Button size="lg" className="w-full">
+                    Start Reaction Test
+                  </Button>
+                </Link>
+                {store.activeUser && store.getUser(store.activeUser).reactionTime.length > 0 && (
+                  <p className="mt-4 text-sm text-muted-foreground">Best: {Math.min(...store.getUser(store.activeUser).reactionTime)}ms</p>
+                )}
+              </CardContent>
+            </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl">Click Speed Test</CardTitle>
-              <CardDescription>
-                Click as fast as you can within the time limit. Challenge your clicking speed.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="text-center">
-              <Link href="/click-speed">
-                <Button size="lg" className="w-full">
-                  Start Speed Test
-                </Button>
-              </Link>
-              {user && user.scores.clickSpeed.length > 0 && (
-                <p className="mt-4 text-sm text-muted-foreground">Best: {Math.max(...user.scores.clickSpeed)} clicks</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+            <Card className="hover:shadow-lg transition-shadow">
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl">Click Speed Test</CardTitle>
+                <CardDescription>
+                  Click as fast as you can within the time limit. Challenge your clicking speed.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Link href="/click-speed">
+                  <Button size="lg" className="w-full">
+                    Start Speed Test
+                  </Button>
+                </Link>
+                {store.activeUser && store.getUser(store.activeUser).reactionTime.length > 0 && (
+                  <p className="mt-4 text-sm text-muted-foreground">Best: {Math.min(...store.getUser(store.activeUser).clickSpeed)} clicks</p>
+                )}
+              </CardContent>
+            </Card>
+          </div>)
+        }
 
-        {user && (
+        {store.activeUser && (
           <div className="text-center mb-12">
             <Card className="max-w-md mx-auto">
               <CardContent className="p-6 text-center">
@@ -94,11 +101,11 @@ export default function HomePage() {
           </div>
         )}
 
-        {!user && (
+        {!store.activeUser && (
           <div className="text-center">
-            <p className="text-muted-foreground mb-4">Sign in to track your scores and compete with yourself!</p>
+            <p className="text-muted-foreground mb-4">Please Sign in first</p>
             <Button variant="outline" onClick={() => setShowAuthModal(true)}>
-              Create Account
+              Sign In
             </Button>
           </div>
         )}

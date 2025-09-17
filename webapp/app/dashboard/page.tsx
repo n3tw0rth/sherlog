@@ -6,14 +6,27 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { Scores } from "@/lib/types"
+import { Header } from "@/components/header"
+import { AuthModal } from "@/components/auth-modal"
 
 export default function DashboardPage() {
-  const { user, isLoading } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const { store, isLoading } = useAuth()
+  const [score, setScore] = useState<Scores>()
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
     setMounted(true)
   }, [])
+
+
+  useEffect(() => {
+    if (store.activeUser) {
+      setScore(
+        store.getUser(store.activeUser))
+    }
+  }, [store])
 
   if (!mounted || isLoading) {
     return (
@@ -26,28 +39,38 @@ export default function DashboardPage() {
     )
   }
 
-  if (!user) {
+  if (!store.activeUser) {
     redirect("/")
   }
 
+  if (!score) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <p className="mt-2 text-muted-foreground">No scores found</p>
+        </div>
+      </div>
+    )
+  }
+
   const reactionStats = {
-    total: user.scores.reactionTime.length,
-    best: user.scores.reactionTime.length > 0 ? Math.min(...user.scores.reactionTime) : null,
+    total: score?.reactionTime.length,
+    best: score?.reactionTime.length > 0 ? Math.min(...score?.reactionTime) : null,
     average:
-      user.scores.reactionTime.length > 0
-        ? Math.round(user.scores.reactionTime.reduce((a, b) => a + b, 0) / user.scores.reactionTime.length)
+      score.reactionTime.length > 0
+        ? Math.round(score.reactionTime.reduce((a, b) => a + b, 0) / score.reactionTime.length)
         : null,
-    recent: user.scores.reactionTime.slice(-5),
+    recent: score.reactionTime.slice(-5),
   }
 
   const clickStats = {
-    total: user.scores.clickSpeed.length,
-    best: user.scores.clickSpeed.length > 0 ? Math.max(...user.scores.clickSpeed) : null,
+    total: score.clickSpeed.length,
+    best: score.clickSpeed.length > 0 ? Math.max(...score.clickSpeed) : null,
     average:
-      user.scores.clickSpeed.length > 0
-        ? Math.round((user.scores.clickSpeed.reduce((a, b) => a + b, 0) / user.scores.clickSpeed.length) * 10) / 10
+      score.clickSpeed.length > 0
+        ? Math.round((score.clickSpeed.reduce((a, b) => a + b, 0) / score.clickSpeed.length) * 10) / 10
         : null,
-    recent: user.scores.clickSpeed.slice(-5),
+    recent: score.clickSpeed.slice(-5),
   }
 
   const getReactionRating = (time: number) => {
@@ -67,14 +90,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-foreground hover:text-primary">
-            ← ReactionGames
-          </Link>
-          <span className="text-sm text-muted-foreground">{user.username}</span>
-        </div>
-      </header>
+
+      <Header onAuthClick={() => setShowAuthModal(true)} />
 
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -262,6 +279,7 @@ export default function DashboardPage() {
           </Card>
         </div>
       </main>
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

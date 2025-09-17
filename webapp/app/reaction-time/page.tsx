@@ -5,16 +5,20 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
+import { GAME_TYPE } from "@/lib/types"
+import { AuthModal } from "@/components/auth-modal"
+import { Header } from "@/components/header"
 
 type GameState = "waiting" | "ready" | "active" | "clicked" | "too-early"
 
 export default function ReactionTimePage() {
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [gameState, setGameState] = useState<GameState>("waiting")
   const [reactionTime, setReactionTime] = useState<number | null>(null)
   const [startTime, setStartTime] = useState<number>(0)
   const [attempts, setAttempts] = useState<number[]>([])
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const { user, updateScores } = useAuth()
+  const { store, updateScores } = useAuth()
 
   const startGame = () => {
     setGameState("ready")
@@ -45,8 +49,8 @@ export default function ReactionTimePage() {
       setAttempts((prev) => [...prev, reaction])
 
       // Save score if user is logged in
-      if (user) {
-        updateScores("reactionTime", reaction)
+      if (store.activeUser) {
+        updateScores(GAME_TYPE.REACTION_TIME, reaction)
       }
     }
   }
@@ -106,14 +110,7 @@ export default function ReactionTimePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-foreground hover:text-primary">
-            ← ReactionGames
-          </Link>
-          {user && <span className="text-sm text-muted-foreground">{user.username}</span>}
-        </div>
-      </header>
+      <Header onAuthClick={() => setShowAuthModal(true)} />
 
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -216,7 +213,7 @@ export default function ReactionTimePage() {
             </Card>
           )}
 
-          {!user && attempts.length > 0 && (
+          {!store.activeUser && attempts.length > 0 && (
             <Card className="mt-6">
               <CardContent className="p-6 text-center">
                 <p className="text-muted-foreground mb-4">
@@ -230,6 +227,7 @@ export default function ReactionTimePage() {
           )}
         </div>
       </main>
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

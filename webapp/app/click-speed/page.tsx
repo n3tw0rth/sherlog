@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
+import { GAME_TYPE } from "@/lib/types"
+import { Header } from "@/components/header"
+import { AuthModal } from "@/components/auth-modal"
 
 type GameState = "waiting" | "countdown" | "active" | "finished"
 
 export default function ClickSpeedPage() {
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const [gameState, setGameState] = useState<GameState>("waiting")
   const [clickCount, setClickCount] = useState(0)
   const [timeLeft, setTimeLeft] = useState(10)
@@ -17,7 +21,7 @@ export default function ClickSpeedPage() {
   const [gameDuration, setGameDuration] = useState(10)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const countdownRef = useRef<NodeJS.Timeout | null>(null)
-  const { user, updateScores } = useAuth()
+  const { store, updateScores } = useAuth()
 
   const startCountdown = () => {
     setGameState("countdown")
@@ -61,8 +65,8 @@ export default function ClickSpeedPage() {
     setAttempts((prev) => [...prev, clickCount])
 
     // Save score if user is logged in
-    if (user) {
-      updateScores("clickSpeed", clickCount)
+    if (store.activeUser) {
+      updateScores(GAME_TYPE.CLICK_SPEED, clickCount)
     }
   }
 
@@ -138,14 +142,7 @@ export default function ClickSpeedPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/" className="text-xl font-bold text-foreground hover:text-primary">
-            ← ReactionGames
-          </Link>
-          {user && <span className="text-sm text-muted-foreground">{user.username}</span>}
-        </div>
-      </header>
+      <Header onAuthClick={() => setShowAuthModal(true)} />
 
       <main className="container mx-auto px-4 py-16">
         <div className="text-center mb-12">
@@ -158,22 +155,6 @@ export default function ClickSpeedPage() {
         <div className="max-w-2xl mx-auto">
           <Card className="mb-8">
             <CardContent className="p-12 text-center">
-              {gameState === "waiting" && (
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-foreground mb-2">Test Duration</label>
-                  <select
-                    value={gameDuration}
-                    onChange={(e) => setGameDuration(Number(e.target.value))}
-                    className="px-3 py-2 border border-border rounded-md bg-background text-foreground"
-                  >
-                    <option value={5}>5 seconds</option>
-                    <option value={10}>10 seconds</option>
-                    <option value={15}>15 seconds</option>
-                    <option value={30}>30 seconds</option>
-                  </select>
-                </div>
-              )}
-
               <div className="mb-8">
                 <button
                   onClick={gameState === "waiting" ? startCountdown : handleClick}
@@ -266,7 +247,7 @@ export default function ClickSpeedPage() {
             </Card>
           )}
 
-          {!user && attempts.length > 0 && (
+          {!store.activeUser && attempts.length > 0 && (
             <Card className="mt-6">
               <CardContent className="p-6 text-center">
                 <p className="text-muted-foreground mb-4">
@@ -280,6 +261,8 @@ export default function ClickSpeedPage() {
           )}
         </div>
       </main>
+
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

@@ -36,9 +36,9 @@
   --sidebar-accent-foreground: rgb(93, 64, 55);
   --sidebar-border: rgb(192, 192, 192);
   --sidebar-ring: rgb(160, 160, 160);
-  --font-sans: Bubbler One, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: "Times New Roman", Times, serif;
-  --font-mono: "Courier New", Courier, monospace;
+  /* --font-sans: Bubbler One, ui-sans-serif, sans-serif, system-ui; */
+  /* --font-serif: "Times New Roman", Times, serif; */
+  /* --font-mono: "Jet", Courier, monospace; */
   --radius: 0.625rem;
   --shadow-2xs: 1px 4px 5px 0px hsl(0 0% 0% / 0.01);
   --shadow-xs: 1px 4px 5px 0px hsl(0 0% 0% / 0.01);
@@ -85,9 +85,9 @@
   --sidebar-accent-foreground: rgb(51, 51, 51);
   --sidebar-border: rgb(79, 79, 79);
   --sidebar-ring: rgb(192, 192, 192);
-  --font-sans: Bubbler One, ui-sans-serif, sans-serif, system-ui;
-  --font-serif: Georgia, serif;
-  --font-mono: "Fira Code", "Courier New", monospace;
+  /* --font-sans: Bubbler One, ui-sans-serif, sans-serif, system-ui; */
+  /* --font-serif: Georgia, serif; */
+  /* --font-mono: "Fira Code", "Courier New", monospace; */
   --radius: 0.625rem;
   --shadow-2xs: 1px 4px 5px 0px hsl(0 0% 0% / 0.01);
   --shadow-xs: 1px 4px 5px 0px hsl(0 0% 0% / 0.01);
@@ -161,4 +161,6 @@
 
 body {
   letter-spacing: var(--tracking-normal);
+  font-family: var(--font-jetbrains-mono)
 }
+
