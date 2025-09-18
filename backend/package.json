@@ -1,5 +1,5 @@
 {
-  "name": "2bigbuttons",
+  "name": "2bigButtons",
   "version": "1.0.0",
   "description": "Rest API using Node.js, TypeScript, Express",
   "main": "server.ts",
